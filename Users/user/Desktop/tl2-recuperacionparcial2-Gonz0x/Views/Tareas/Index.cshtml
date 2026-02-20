@@ -26,8 +26,9 @@
             <tr>
                 <td>@tarea.Id</td>
                 <td>@tarea.Titulo</td>
-                <td>@tarea.Anio</td>
-                <td>@tarea.Categoria</td>
+                <td>@tarea.Descripcion</td>
+                <td>@tarea.Complejidad</td>
+                <td>@tarea.Estado</td>
                 <td>
                     <a asp-controller="tareas" asp-action="Edit" asp-route-id="@tarea.Id" class="btn btn-warning btn-sm">Editar</a>
                     <a asp-controller="tareas" asp-action="Delete" asp-route-id="@tarea.Id" class="btn btn-danger btn-sm">Eliminar</a>

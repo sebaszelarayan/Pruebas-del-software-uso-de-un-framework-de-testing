@@ -22,13 +22,13 @@ namespace tl2_recuperacionparcial2_Gonz0x
 
         private IActionResult CheckReadPermissions() {
             if (!_auth.IsAuthenticated()) return RedirectToAction("Index", "Login");
-            if (!(_auth.HasAccessLevel("Administrador") || _auth.HasAccessLevel("Cliente"))) return RedirectToAction(nameof(AccesoDenegado));
+            if (!(_auth.HasAccessLevel("Admin") || _auth.HasAccessLevel("Cliente"))) return RedirectToAction(nameof(AccesoDenegado));
             return null;
         }
 
         private IActionResult CheckAdminPermissions() {
             if (!_auth.IsAuthenticated()) return RedirectToAction("Index", "Login");
-            if (!_auth.HasAccessLevel("Administrador")) return RedirectToAction(nameof(AccesoDenegado));
+            if (!_auth.HasAccessLevel("Admin")) return RedirectToAction(nameof(AccesoDenegado));
             return null;
         }
 
@@ -81,8 +81,20 @@ namespace tl2_recuperacionparcial2_Gonz0x
             var perm = CheckAdminPermissions();
             if (perm != null) return perm;
             try
-            {             
-                if (!ModelState.IsValid)
+            {
+                // VALIDACIÓN: Bloquear suma total > 50
+                int sumaTotal = 0;
+                var tareas = _tareaRepository.GetAll();
+                foreach (var t in tareas)
+                {
+                    sumaTotal += t.Complejidad;
+                }
+                //suma total de complejidad de todas las tareas registradas
+                if (sumaTotal >= 50)
+                {
+                    ModelState.AddModelError("Complejidad", "No puedes crear una tarea que haga que la suma complejidad total de las registradas sea > 50.");
+                }
+                if (!ModelState.IsValid || sumaTotal >= 50)
                 {
                     var items = Enum.GetValues(typeof(Estado))
                     .Cast<Estado>()
@@ -124,21 +136,22 @@ namespace tl2_recuperacionparcial2_Gonz0x
             if (tarea == null)
                 return NotFound();
 
-            var items = Enum.GetValues(typeof(Estado)).Cast<Estado>().Select(c => new SelectListItem
+            var items = Enum.GetValues(typeof(Estado)).Cast<Estado>().Select(e => new SelectListItem
             { 
-                Value = c.ToString(), 
-                Text = c.ToString() 
+                Value = e.ToString(), 
+                Text = e.ToString() 
             })
             .ToList();
             var vm = new TareaUpdateViewModel
             {
                 Id = tarea.Id,
                 Titulo = tarea.Titulo,
-                Anio = tarea.Anio,
+                Descripcion = tarea.Descripcion,
+                Complejidad = tarea.Complejidad,
                 Estado = tarea.Estado,
-                // 2. Asignar la lista al ViewModel
+                //Asignar la lista al ViewModel
                 ListaEstados = new SelectList(items, "Value", "Text", tarea.Estado.ToString())
-                // El cuarto argumento (tarea.Estado.ToString()) selecciona la categoría actual.
+
             };
 
             return View(vm);
@@ -153,18 +166,27 @@ namespace tl2_recuperacionparcial2_Gonz0x
             if (perm != null) return perm;            
             try 
             {
-                // 🛠️ VALIDACIÓN: Bloquear años futuros
-                if (vm.Anio > DateTime.Now.Year)
+                // VALIDACIÓN: Bloquear suma total > 50
+                int sumaTotal = 0;
+                var tareas = _tareaRepository.GetAll();
+                foreach (var t in tareas)
                 {
-                    ModelState.AddModelError("Anio", "No puedes editar una película con un año futuro.");
+                    sumaTotal += t.Complejidad;
+                }
+                var tareaVieja = _tareaRepository.GetById(id);
+                sumaTotal -= tareaVieja.Complejidad;
+                //suma total de complejidad de todas las tareas registradas
+                if ((sumaTotal + vm.Complejidad) >= 50)
+                {
+                    ModelState.AddModelError("Complejidad", "No puedes editar una tarea que haga que la suma complejidad total de las registradas sea > 50.");
                 }
 
-                if (!ModelState.IsValid)
+                if (!ModelState.IsValid || sumaTotal >= 50)
                 {
-                    // Si hay error, recargamos la lista de categorías para que el combo no falle
+                    // Si hay error, recargamos la lista de estados para que no falle
                     var items = Enum.GetValues(typeof(Estado))
                         .Cast<Estado>()
-                        .Select(c => new SelectListItem { Value = c.ToString(), Text = c.ToString() })
+                        .Select(e => new SelectListItem { Value = e.ToString(), Text = e.ToString() })
                         .ToList();
                     vm.ListaEstados = new SelectList(items, "Value", "Text", vm.Estado.ToString());
                     
@@ -175,16 +197,17 @@ namespace tl2_recuperacionparcial2_Gonz0x
                 if (tarea == null) return NotFound();
 
                 tarea.Titulo = vm.Titulo;
-                tarea.Anio = vm.Anio;
+                tarea.Descripcion = vm.Descripcion;
+                tarea.Complejidad = vm.Complejidad;
                 tarea.Estado = vm.Estado;
 
                 _tareaRepository.Update(id, tarea);
-                _logger.LogInformation("Película ID {Id} editada correctamente. Año: {Anio}", id, vm.Anio);
+                _logger.LogInformation("Tarea ID {Id} editada correctamente. Complejidad: {Complejidad}", id, vm.Complejidad);
                 return RedirectToAction("Index");
             }
             catch(Exception ex)
             {
-                // ❌ LOG: Error serializado (Consigna TP 11)
+                // LOG: Error serializado
                 _logger.LogError(ex.ToString());
                 return RedirectToAction("Error", "Home");
             }
@@ -213,13 +236,13 @@ namespace tl2_recuperacionparcial2_Gonz0x
             try
             {
                 _tareaRepository.Delete(tarea.Id);
-                _logger.LogInformation("Película ID {Id} eliminada.", tarea.Id);
+                _logger.LogInformation("Tarea ID {Id} eliminada.", tarea.Id);
                 return RedirectToAction("Index");
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex.ToString());
-                TempData["Error"] = "No se pudo eliminar la película.";
+                TempData["Error"] = "No se pudo eliminar la tarea.";
                 return RedirectToAction("Index");
             }
 

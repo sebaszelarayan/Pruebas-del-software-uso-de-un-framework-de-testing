@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("tl2-recuperacionparcial2-Gonz0x")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3deb85b108a830fec6be0d8b9ff434a6cfe53e61")]
 [assembly: System.Reflection.AssemblyProductAttribute("tl2-recuperacionparcial2-Gonz0x")]
 [assembly: System.Reflection.AssemblyTitleAttribute("tl2-recuperacionparcial2-Gonz0x")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

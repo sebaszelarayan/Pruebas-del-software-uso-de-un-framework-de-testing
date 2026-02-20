@@ -9,14 +9,5 @@ namespace tl2_recuperacionparcial2_Gonz0x.Models
         public int Complejidad {get; set; }
         public Estado Estado { get; set; } 
 
-        public int SumaTotalComplejidad()
-        {
-            int sumaTotal = 0;
-            foreach (var t in Tarea)
-            {
-                sumaTotal += t.Complejidad;
-            }
-            return sumaTotal;
-        } //suma total de complejidad de todas las tareas registradas
     }
 }

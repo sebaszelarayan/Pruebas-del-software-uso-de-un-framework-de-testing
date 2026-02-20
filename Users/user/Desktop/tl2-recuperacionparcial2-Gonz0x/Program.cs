@@ -27,7 +27,7 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddSingleton<string>(connectionString);
 
 // Registrar los repositorios pasando la cadena inyectada
-builder.Services.AddScoped<ITareaRepositoryRepository, TareaRepository>();
+builder.Services.AddScoped<ITareaRepository, TareaRepository>();
 builder.Services.AddScoped<IUserRepository, UsuarioRepository>();
 
 // Servicios
