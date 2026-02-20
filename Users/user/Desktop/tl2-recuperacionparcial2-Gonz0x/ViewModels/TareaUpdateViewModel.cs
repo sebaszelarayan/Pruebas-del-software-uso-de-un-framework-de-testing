@@ -5,8 +5,10 @@ using tl2_recuperacionparcial2_Gonz0x.Models;
 
 namespace tl2_recuperacionparcial2_Gonz0x.ViewModels
 {
-    public class TareaCreateViewModel
+    public class TareaUpdateViewModel
     {
+        public int Id { get; set; }
+        
         [Display(Name = "Título de la Tarea")]
         [Required(ErrorMessage = "El título es obligatorio.")]
         [StringLength(100, MinimumLength = 3, ErrorMessage = "El título debe tener entre 3 y 100 caracteres.")]
