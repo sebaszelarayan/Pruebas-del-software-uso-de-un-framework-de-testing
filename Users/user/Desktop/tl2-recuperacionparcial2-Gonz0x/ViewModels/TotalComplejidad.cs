@@ -8,7 +8,7 @@ namespace tl2_parcial2_2025_Gonz0x.ViewModels
         {
             if (value is int complejidad)
             {
-                if (complejidad > 50)
+                if (SumaTotalComplejidad() > 50)
                 {
                     return new ValidationResult("La suma total de complejidad no puede superar 50.");
                 }

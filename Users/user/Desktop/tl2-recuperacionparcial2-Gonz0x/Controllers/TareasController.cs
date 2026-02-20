@@ -40,12 +40,13 @@ namespace tl2_recuperacionparcial2_Gonz0x
                 var perm = CheckReadPermissions();
                 if (perm != null) return perm;
                 var tareas = _tareaRepository.GetAll();
-                var tareasVM = tareas.Select(p => new TareaIndexViewModel
+                var tareasVM = tareas.Select(t => new TareaIndexViewModel
                 {
-                    Id = p.Id,
-                    Titulo = p.Titulo,
-                    Anio = p.Anio,
-                    Categoria = p.Categoria
+                    Id = t.Id,
+                    Titulo = t.Titulo,
+                    Descripcion = t.Descripcion,
+                    Complejidad = t.Complejidad,
+                    Estado = t.Estado
                 }).ToList();
 
                 return View(tareasVM);
@@ -59,20 +60,17 @@ namespace tl2_recuperacionparcial2_Gonz0x
         [HttpGet]
         public IActionResult Create()
         {
-            if (!_auth.IsAuthenticated())
-            return RedirectToAction("Index", "Login");
+            var perm = CheckAdminPermissions();
+            if (perm != null) return perm;
 
-            if (!_auth.HasAccessLevel("Administrador"))
-            return RedirectToAction(nameof(AccesoDenegado));       
-
-            var items = Enum.GetValues(typeof(Categoria))
-            .Cast<Categoria>()
-            .Select(c => new SelectListItem { Value = c.ToString(), Text = c.ToString() })
+            var items = Enum.GetValues(typeof(Estado))
+            .Cast<Estado>()
+            .Select(e => new SelectListItem { Value = e.ToString(), Text = e.ToString() })
             .ToList();
 
             var vm = new TareaCreateViewModel 
             {
-                ListaCategorias = new SelectList(items, "Value", "Text")
+                ListaEstados = new SelectList(items, "Value", "Text")
             };
             return View(vm);
         }
@@ -86,28 +84,29 @@ namespace tl2_recuperacionparcial2_Gonz0x
             {             
                 if (!ModelState.IsValid)
                 {
-                    var items = Enum.GetValues(typeof(Categoria))
-                    .Cast<Categoria>()
-                    .Select(c => new SelectListItem { Value = c.ToString(), Text = c.ToString() })
+                    var items = Enum.GetValues(typeof(Estado))
+                    .Cast<Estado>()
+                    .Select(e => new SelectListItem { Value = e.ToString(), Text = e.ToString() })
                     .ToList();
-                    vm.ListaCategorias = new SelectList(items, "Value", "Text");
+                    vm.ListaEstados = new SelectList(items, "Value", "Text");
                     return View(vm);
                 }
 
                 var tarea = new Tarea()
                 {
                     Titulo = vm.Titulo,
-                    Anio = vm.Anio,
-                    Categoria = vm.Categoria
+                    Descripcion = vm.Descripcion,
+                    Complejidad = vm.Complejidad,
+                    Estado = vm.Estado
                 };
 
                 _tareaRepository.Add(tarea);
-                _logger.LogInformation("Película '{Titulo}' creada exitosamente.", tarea.Titulo);
+                _logger.LogInformation("Tarea '{Titulo}' creada exitosamente.", tarea.Titulo);
                 return RedirectToAction("Index");                
             }
             catch (Exception ex)
             {
-                // ❌ Registro del error serializado
+                // Registro del error serializado
                 _logger.LogError(ex.ToString());
                 return RedirectToAction("Error", "Home");
             }
@@ -125,7 +124,7 @@ namespace tl2_recuperacionparcial2_Gonz0x
             if (tarea == null)
                 return NotFound();
 
-            var items = Enum.GetValues(typeof(Categoria)).Cast<Categoria>().Select(c => new SelectListItem
+            var items = Enum.GetValues(typeof(Estado)).Cast<Estado>().Select(c => new SelectListItem
             { 
                 Value = c.ToString(), 
                 Text = c.ToString() 
@@ -136,10 +135,10 @@ namespace tl2_recuperacionparcial2_Gonz0x
                 Id = tarea.Id,
                 Titulo = tarea.Titulo,
                 Anio = tarea.Anio,
-                Categoria = tarea.Categoria,
+                Estado = tarea.Estado,
                 // 2. Asignar la lista al ViewModel
-                ListaCategorias = new SelectList(items, "Value", "Text", tarea.Categoria.ToString())
-                // El cuarto argumento (tarea.Categoria.ToString()) selecciona la categoría actual.
+                ListaEstados = new SelectList(items, "Value", "Text", tarea.Estado.ToString())
+                // El cuarto argumento (tarea.Estado.ToString()) selecciona la categoría actual.
             };
 
             return View(vm);
@@ -163,11 +162,11 @@ namespace tl2_recuperacionparcial2_Gonz0x
                 if (!ModelState.IsValid)
                 {
                     // Si hay error, recargamos la lista de categorías para que el combo no falle
-                    var items = Enum.GetValues(typeof(Categoria))
-                        .Cast<Categoria>()
+                    var items = Enum.GetValues(typeof(Estado))
+                        .Cast<Estado>()
                         .Select(c => new SelectListItem { Value = c.ToString(), Text = c.ToString() })
                         .ToList();
-                    vm.ListaCategorias = new SelectList(items, "Value", "Text", vm.Categoria.ToString());
+                    vm.ListaEstados = new SelectList(items, "Value", "Text", vm.Estado.ToString());
                     
                     return View(vm);
                 }
@@ -177,7 +176,7 @@ namespace tl2_recuperacionparcial2_Gonz0x
 
                 tarea.Titulo = vm.Titulo;
                 tarea.Anio = vm.Anio;
-                tarea.Categoria = vm.Categoria;
+                tarea.Estado = vm.Estado;
 
                 _tareaRepository.Update(id, tarea);
                 _logger.LogInformation("Película ID {Id} editada correctamente. Año: {Anio}", id, vm.Anio);

@@ -20,6 +20,7 @@ namespace tl2_recuperacionparcial2_Gonz0x.ViewModels
         [Display(Name = "Complejidad")]
         [Required(ErrorMessage = "La complejidad es obligatorio.")]
         [Range(1, 10, ErrorMessage = "La complejidad debe ser entre 1 y 10.")]
+        [TotalComplejidad]
         public int Complejidad { get; set; }
 
         [Display(Name = "Estado de la Tarea")]
