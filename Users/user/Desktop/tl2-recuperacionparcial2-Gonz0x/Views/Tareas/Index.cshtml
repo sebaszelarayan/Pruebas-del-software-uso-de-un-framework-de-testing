@@ -1,0 +1,44 @@
+@model List<tl2_recuperacionparcial2_Gonz0x.ViewModels.TareaIndexViewModel>
+
+@{
+    ViewData["Title"] = "Lista de Tareas";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<p>
+    <a asp-controller="Tareas" asp-action="Create" class="btn btn-primary">Crear Tarea</a>
+</p>
+
+<table class="table table-striped table-bordered mt-3">
+    <thead class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>Titulo</th>
+            <th>Descripcion</th>
+            <th>Complejidad</th>
+            <th>Estado</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var tarea in Model)
+        {
+            <tr>
+                <td>@tarea.Id</td>
+                <td>@tarea.Titulo</td>
+                <td>@tarea.Anio</td>
+                <td>@tarea.Categoria</td>
+                <td>
+                    <a asp-controller="tareas" asp-action="Edit" asp-route-id="@tarea.Id" class="btn btn-warning btn-sm">Editar</a>
+                    <a asp-controller="tareas" asp-action="Delete" asp-route-id="@tarea.Id" class="btn btn-danger btn-sm">Eliminar</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+
